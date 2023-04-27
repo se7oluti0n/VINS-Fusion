@@ -8,6 +8,7 @@
  *******************************************************/
 
 #include "marginalization_factor.h"
+#include "../estimator/parameters.h"
 
 void ResidualBlockInfo::Evaluate()
 {
@@ -79,7 +80,7 @@ void ResidualBlockInfo::Evaluate()
 
 MarginalizationInfo::~MarginalizationInfo()
 {
-    //ROS_WARN("release marginlizationinfo");
+    //RCLCPP_WARN(ros2_node->get_logger(), ("release marginlizationinfo");
     
     for (auto it = parameter_block_data.begin(); it != parameter_block_data.end(); ++it)
         delete it->second;
@@ -263,8 +264,9 @@ void MarginalizationInfo::marginalize()
         int ret = pthread_create( &tids[i], NULL, ThreadsConstructA ,(void*)&(threadsstruct[i]));
         if (ret != 0)
         {
-            ROS_WARN("pthread_create error");
-            ROS_BREAK();
+            RCLCPP_WARN(ros2_node->get_logger(), "pthread_create error");
+            rclcpp::shutdown();
+            // ROS_BREAK();
         }
     }
     for( int i = NUM_THREADS - 1; i >= 0; i--)  

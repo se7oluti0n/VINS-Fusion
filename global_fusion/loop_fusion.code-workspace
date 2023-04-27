@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../loop_fusion"
+		},
+		{
+			"path": "../vins_estimator"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../camera_models"
+		}
+	],
+	"settings": {}
+}

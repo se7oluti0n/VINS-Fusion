@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <vector>
 #include <eigen3/Eigen/Dense>
 #include "../utility/utility.h"
@@ -63,6 +63,7 @@ extern int MIN_DIST;
 extern double F_THRESHOLD;
 extern int SHOW_TRACK;
 extern int FLOW_BACK;
+extern rclcpp::Node::SharedPtr ros2_node; //= rclcpp::Node::make_shared("cartographer_node");
 
 void readParameters(std::string config_file);
 

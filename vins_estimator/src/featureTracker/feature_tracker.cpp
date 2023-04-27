@@ -157,7 +157,9 @@ map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> FeatureTracker::trackIm
         reduceVector(cur_pts, status);
         reduceVector(ids, status);
         reduceVector(track_cnt, status);
-        ROS_DEBUG("temporal optical flow costs: %fms", t_o.toc());
+        // RCLCPP_DEBUG(ros2_node->get_logger(), "temporal optical flow costs: %fms", t_o.toc());
+        RCLCPP_DEBUG(ros2_node->get_logger(), "temporal optical flow costs: %fms", t_o.toc());
+
         //printf("track cnt %d\n", (int)ids.size());
     }
 
@@ -167,12 +169,16 @@ map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> FeatureTracker::trackIm
     if (1)
     {
         //rejectWithF();
-        ROS_DEBUG("set mask begins");
+        // RCLCPP_DEBUG(ros2_node->get_logger(), "set mask begins");
+        RCLCPP_DEBUG(ros2_node->get_logger(), "set mask begins");
+
         TicToc t_m;
         setMask();
-        ROS_DEBUG("set mask costs %fms", t_m.toc());
+        // RCLCPP_DEBUG(ros2_node->get_logger(), "set mask costs %fms", t_m.toc());
+        RCLCPP_DEBUG(ros2_node->get_logger(), "set mask costs %fms", t_m.toc());
 
-        ROS_DEBUG("detect feature begins");
+
+        RCLCPP_DEBUG(ros2_node->get_logger(), "detect feature begins");
         TicToc t_t;
         int n_max_cnt = MAX_CNT - static_cast<int>(cur_pts.size());
         if (n_max_cnt > 0)
@@ -185,7 +191,7 @@ map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> FeatureTracker::trackIm
         }
         else
             n_pts.clear();
-        ROS_DEBUG("detect feature costs: %f ms", t_t.toc());
+        RCLCPP_DEBUG(ros2_node->get_logger(), "detect feature costs: %f ms", t_t.toc());
 
         for (auto &p : n_pts)
         {
@@ -309,7 +315,7 @@ void FeatureTracker::rejectWithF()
 {
     if (cur_pts.size() >= 8)
     {
-        ROS_DEBUG("FM ransac begins");
+        RCLCPP_DEBUG(ros2_node->get_logger(), "FM ransac begins");
         TicToc t_f;
         vector<cv::Point2f> un_cur_pts(cur_pts.size()), un_prev_pts(prev_pts.size());
         for (unsigned int i = 0; i < cur_pts.size(); i++)
@@ -334,8 +340,8 @@ void FeatureTracker::rejectWithF()
         reduceVector(cur_un_pts, status);
         reduceVector(ids, status);
         reduceVector(track_cnt, status);
-        ROS_DEBUG("FM ransac: %d -> %lu: %f", size_a, cur_pts.size(), 1.0 * cur_pts.size() / size_a);
-        ROS_DEBUG("FM ransac costs: %fms", t_f.toc());
+        RCLCPP_DEBUG(ros2_node->get_logger(), "FM ransac: %d -> %lu: %f", size_a, cur_pts.size(), 1.0 * cur_pts.size() / size_a);
+        RCLCPP_DEBUG(ros2_node->get_logger(), "FM ransac costs: %fms", t_f.toc());
     }
 }
 
@@ -343,7 +349,7 @@ void FeatureTracker::readIntrinsicParameter(const vector<string> &calib_file)
 {
     for (size_t i = 0; i < calib_file.size(); i++)
     {
-        ROS_INFO("reading paramerter of camera %s", calib_file[i].c_str());
+        RCLCPP_INFO(ros2_node->get_logger(), "reading paramerter of camera %s", calib_file[i].c_str());
         camodocal::CameraPtr camera = CameraFactory::instance()->generateCameraFromYamlFile(calib_file[i]);
         m_camera.push_back(camera);
     }

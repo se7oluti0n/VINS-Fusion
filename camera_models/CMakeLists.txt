@@ -1,14 +1,11 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(camera_models)
 
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++17")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fPIC")
 
-find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    std_msgs
-    )
+
 
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -19,17 +16,12 @@ find_package(OpenCV REQUIRED)
 find_package(Ceres REQUIRED)
 include_directories(${CERES_INCLUDE_DIRS})
 
+find_package(ament_cmake REQUIRED)
 
-catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES camera_models
-    CATKIN_DEPENDS roscpp std_msgs
-#    DEPENDS system_lib
-    )
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 
-include_directories(
-    ${catkin_INCLUDE_DIRS}
-    )
+
 
 include_directories("include")
 
@@ -64,5 +56,34 @@ add_library(camera_models
     src/gpl/gpl.cc
     src/gpl/EigenQuaternionParameterization.cc)
 
+ament_target_dependencies(Calibrations
+  std_msgs
+)
+
+ament_target_dependencies(camera_models
+  std_msgs
+)
 target_link_libraries(Calibrations ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
 target_link_libraries(camera_models ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
+
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+install(TARGETS
+  Calibrations
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+    DIRECTORY "include/camodocal"
+    DESTINATION include/
+)
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
+ament_package()

@@ -18,8 +18,12 @@
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
 #include <ceres/ceres.h>
-#include <nav_msgs/Odometry.h>
-#include <nav_msgs/Path.h>
+
+#include <nav_msgs/msg/path.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+
+#include <rclcpp/rclcpp.hpp>
 #include "LocalCartesian.hpp"
 #include "tic_toc.h"
 
@@ -30,10 +34,10 @@ class GlobalOptimization
 public:
 	GlobalOptimization();
 	~GlobalOptimization();
-	void inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy);
-	void inputOdom(double t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ);
+	void inputGPS(rclcpp::Time t, double latitude, double longitude, double altitude, double posAccuracy);
+	void inputOdom(rclcpp::Time t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ);
 	void getGlobalOdom(Eigen::Vector3d &odomP, Eigen::Quaterniond &odomQ);
-	nav_msgs::Path global_path;
+	nav_msgs::msg::Path global_path;
 
 private:
 	void GPS2XYZ(double latitude, double longitude, double altitude, double* xyz);

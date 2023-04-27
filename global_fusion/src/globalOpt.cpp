@@ -37,12 +37,12 @@ void GlobalOptimization::GPS2XYZ(double latitude, double longitude, double altit
     //printf("gps x: %f y: %f z: %f\n", xyz[0], xyz[1], xyz[2]);
 }
 
-void GlobalOptimization::inputOdom(double t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ)
+void GlobalOptimization::inputOdom(rclcpp::Time t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ)
 {
 	mPoseMap.lock();
     vector<double> localPose{OdomP.x(), OdomP.y(), OdomP.z(), 
     					     OdomQ.w(), OdomQ.x(), OdomQ.y(), OdomQ.z()};
-    localPoseMap[t] = localPose;
+    localPoseMap[t.seconds()] = localPose;
 
 
     Eigen::Quaterniond globalQ;
@@ -50,12 +50,12 @@ void GlobalOptimization::inputOdom(double t, Eigen::Vector3d OdomP, Eigen::Quate
     Eigen::Vector3d globalP = WGPS_T_WVIO.block<3, 3>(0, 0) * OdomP + WGPS_T_WVIO.block<3, 1>(0, 3);
     vector<double> globalPose{globalP.x(), globalP.y(), globalP.z(),
                               globalQ.w(), globalQ.x(), globalQ.y(), globalQ.z()};
-    globalPoseMap[t] = globalPose;
+    globalPoseMap[t.seconds()] = globalPose;
     lastP = globalP;
     lastQ = globalQ;
 
-    geometry_msgs::PoseStamped pose_stamped;
-    pose_stamped.header.stamp = ros::Time(t);
+    geometry_msgs::msg::PoseStamped pose_stamped;
+    pose_stamped.header.stamp = t;
     pose_stamped.header.frame_id = "world";
     pose_stamped.pose.position.x = lastP.x();
     pose_stamped.pose.position.y = lastP.y();
@@ -76,13 +76,13 @@ void GlobalOptimization::getGlobalOdom(Eigen::Vector3d &odomP, Eigen::Quaternion
     odomQ = lastQ;
 }
 
-void GlobalOptimization::inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy)
+void GlobalOptimization::inputGPS(rclcpp::Time t, double latitude, double longitude, double altitude, double posAccuracy)
 {
 	double xyz[3];
 	GPS2XYZ(latitude, longitude, altitude, xyz);
 	vector<double> tmp{xyz[0], xyz[1], xyz[2], posAccuracy};
     //printf("new gps: t: %f x: %f y: %f z:%f \n", t, tmp[0], tmp[1], tmp[2]);
-	GPSPositionMap[t] = tmp;
+	GPSPositionMap[t.seconds()] = tmp;
     newGPS = true;
 
 }
@@ -254,8 +254,8 @@ void GlobalOptimization::updateGlobalPath()
     map<double, vector<double>>::iterator iter;
     for (iter = globalPoseMap.begin(); iter != globalPoseMap.end(); iter++)
     {
-        geometry_msgs::PoseStamped pose_stamped;
-        pose_stamped.header.stamp = ros::Time(iter->first);
+        geometry_msgs::msg::PoseStamped pose_stamped;
+        pose_stamped.header.stamp = rclcpp::Time(static_cast<int64_t>(iter->first * 1e9));
         pose_stamped.header.frame_id = "world";
         pose_stamped.pose.position.x = iter->second[0];
         pose_stamped.pose.position.y = iter->second[1];

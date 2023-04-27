@@ -48,17 +48,18 @@ int FLOW_BACK;
 
 
 template <typename T>
-T readParam(ros::NodeHandle &n, std::string name)
+T readParam(rclcpp::Node::SharedPtr n, std::string name)
 {
     T ans;
-    if (n.getParam(name, ans))
+    if (n->get_parameter(name, ans))
     {
-        ROS_INFO_STREAM("Loaded " << name << ": " << ans);
+        RCLCPP_INFO_STREAM(n->get_logger(), "Loaded " << name << ": " << ans);
     }
     else
-    {
-        ROS_ERROR_STREAM("Failed to load " << name);
-        n.shutdown();
+    {   
+        RCLCPP_INFO_STREAM(n->get_logger(), "Failed to load " << name);
+        // n->shutdown();
+        rclcpp::shutdown();
     }
     return ans;
 }
@@ -67,8 +68,11 @@ void readParameters(std::string config_file)
 {
     FILE *fh = fopen(config_file.c_str(),"r");
     if(fh == NULL){
-        ROS_WARN("config_file dosen't exist; wrong config_file path");
-        ROS_BREAK();
+        // RCLCPP_WARN(ros2_node->get_logger(),  ("config_file dosen't exist; wrong config_file path");
+        RCLCPP_WARN(ros2_node->get_logger(), "config_file dosen't exist; wrong config_file path");
+
+        // ROS_BREAK();
+        rclcpp::shutdown();
         return;          
     }
     fclose(fh);
@@ -116,7 +120,9 @@ void readParameters(std::string config_file)
     ESTIMATE_EXTRINSIC = fsSettings["estimate_extrinsic"];
     if (ESTIMATE_EXTRINSIC == 2)
     {
-        ROS_WARN("have no prior about extrinsic param, calibrate extrinsic param");
+        // RCLCPP_WARN(ros2_node->get_logger(),  ("have no prior about extrinsic param, calibrate extrinsic param");
+        RCLCPP_WARN(ros2_node->get_logger(), "have no prior about extrinsic param, calibrate extrinsic param");
+
         RIC.push_back(Eigen::Matrix3d::Identity());
         TIC.push_back(Eigen::Vector3d::Zero());
         EX_CALIB_RESULT_PATH = OUTPUT_FOLDER + "/extrinsic_parameter.csv";
@@ -125,11 +131,14 @@ void readParameters(std::string config_file)
     {
         if ( ESTIMATE_EXTRINSIC == 1)
         {
-            ROS_WARN(" Optimize extrinsic param around initial guess!");
+            // RCLCPP_WARN(ros2_node->get_logger(),  (" Optimize extrinsic param around initial guess!");
+            RCLCPP_WARN(ros2_node->get_logger(), 
+                " Optimize extrinsic param around initial guess!");
+
             EX_CALIB_RESULT_PATH = OUTPUT_FOLDER + "/extrinsic_parameter.csv";
         }
         if (ESTIMATE_EXTRINSIC == 0)
-            ROS_WARN(" fix extrinsic param ");
+            RCLCPP_WARN(ros2_node->get_logger(), " fix extrinsic param ");
 
         cv::Mat cv_T;
         fsSettings["body_T_cam0"] >> cv_T;
@@ -181,13 +190,19 @@ void readParameters(std::string config_file)
     TD = fsSettings["td"];
     ESTIMATE_TD = fsSettings["estimate_td"];
     if (ESTIMATE_TD)
-        ROS_INFO_STREAM("Unsynchronized sensors, online estimate time offset, initial td: " << TD);
+        // ROS_INFO_STREAM("Unsynchronized sensors, online estimate time offset, initial td: " << TD);
+        RCLCPP_INFO_STREAM(ros2_node->get_logger(), 
+            "Unsynchronized sensors, online estimate time offset, initial td: " << TD);
+        
     else
-        ROS_INFO_STREAM("Synchronized sensors, fix time offset: " << TD);
+        // ROS_INFO_STREAM("Synchronized sensors, fix time offset: " << TD);
+        RCLCPP_INFO_STREAM(ros2_node->get_logger(), 
+            "Synchronized sensors, fix time offset: " << TD);
 
     ROW = fsSettings["image_height"];
     COL = fsSettings["image_width"];
-    ROS_INFO("ROW: %d COL: %d ", ROW, COL);
+    // ROS_INFO("ROW: %d COL: %d ", ROW, COL);
+    RCLCPP_INFO(ros2_node->get_logger(), "ROW: %d COL: %d ", ROW, COL);
 
     if(!USE_IMU)
     {
