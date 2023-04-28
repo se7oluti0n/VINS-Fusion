@@ -61,10 +61,10 @@ Green path is VIO odometry; red path is odometry under visual loop closure.
 ### 3.1 Monocualr camera + IMU
 
 ```
-    roslaunch vins vins_rviz.launch
-    rosrun vins vins_node ~/catkin_ws/src/VINS-Fusion/config/euroc/euroc_mono_imu_config.yaml 
-    (optional) rosrun loop_fusion loop_fusion_node ~/catkin_ws/src/VINS-Fusion/config/euroc/euroc_mono_imu_config.yaml 
-    rosbag play YOUR_DATASET_FOLDER/MH_01_easy.bag
+    rviz2 (then oen  vins_rviz_config.rviz)
+    ros2 run vins vins_node ~/catkin_ws/src/VINS-Fusion/config/euroc/euroc_mono_imu_config.yaml 
+    (optional) ros2 run loop_fusion loop_fusion_node ~/catkin_ws/src/VINS-Fusion/config/euroc/euroc_mono_imu_config.yaml 
+    ros2 bag play YOUR_DATASET_FOLDER/MH_01_easy.bag
 ```
 
 ### 3.2 Stereo cameras + IMU
